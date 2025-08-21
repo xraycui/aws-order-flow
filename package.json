@@ -1,0 +1,19 @@
+{
+  "name": "orderflow",
+  "version": "1.0.0",
+  "private": true,
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.130",
+    "@types/aws-sdk": "^2.7.4",
+    "@types/node": "^20.4.2",
+    "aws-cdk": "^2.187.0",
+    "aws-cdk-lib": "^2.187.0",
+    "constructs": "^10.1.161",
+    "esbuild": "^0.19.4",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "@aws-sdk/client-sqs": "^3.872.0"
+  }
+}
