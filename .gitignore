@@ -1,3 +1,5 @@
 **\node_modules 
 cdk.out 
 dist
+cdk.context.json
+.localstack/
