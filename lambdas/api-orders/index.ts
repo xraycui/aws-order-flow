@@ -1,24 +1,28 @@
-import { APIGatewayProxyHandler } from "aws-lambda"
-import { SNSClient, PublishCommand } from '@aws-sdk/client-sns'
+import { APIGatewayProxyHandler} from 'aws-lambda'
+import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
 
-const snsClient = new SNSClient({
-  region: "us-east-1",
-  endpoint: process.env.SNS_ENDPOINT || "http://localhost:4566", // LocalStack
-})
+const client = new SNSClient({ region: process.env.AWS_REGION });
 
 export const handler: APIGatewayProxyHandler = async (event: any) => {
-  try {
-    const body = JSON.parse(event?.body || {})
-    const command = new PublishCommand({
-      TopicArn: process.env.ORDER_TOPIC_ARN,
-      Message: JSON.stringify({
-        orderID: Date.now(),
-        ...body
-      })
+  console.log('Received /api-orders request:', JSON.stringify(event));
+
+  const body = typeof event.body === 'string' ? JSON.parse(event.body) : event.body;
+
+  const topicArn = process.env.API_ORDERS_TOPIC_ARN;
+  if (!topicArn) throw new Error('API_ORDERS_TOPIC_ARN not defined');
+
+  await client.send(
+    new PublishCommand({
+      TopicArn: topicArn,
+      Message: JSON.stringify(body),
+      MessageAttributes: {
+        source: { DataType: 'String', StringValue: 'api-orders-lambda' },
+      },
     })
-    snsClient.send(command)
-    return { statusCode: 200, body: JSON.stringify({messaage: 'Order published to SNS'})}
-  } catch (err: any) {
-    return { statusCode: 400, body: JSON.stringify({ error: err.message})}
-  }
-} 
+  );
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify({ message: 'Order published to SNS' }),
+  };
+};

@@ -1,32 +1,28 @@
-import { APIGatewayProxyHandler } from "aws-lambda";
-import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
+import { APIGatewayProxyHandler} from 'aws-lambda'
+import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 
-const sqsClient = new SQSClient({
-  endpoint: 'http://localhost:4566',
-  region: 'us-east-1',
-})
+const client = new SQSClient({ region: process.env.AWS_REGION });
 
-interface IOrder {
-  orderId: string
-  item: string
-  quantity: number
-}
-const QUEUE_URL = "http://localhost:4566/000000000000/OrderQueue";
-export const handler: APIGatewayProxyHandler = async (event) => {
-  try {
-    if(!event.body) throw new Error('Missing body')
-    
-    const order: IOrder = JSON.parse(event.body)
-    if (!order.orderId || !order.item || !order.quantity) {
-      return { statusCode: 400, body: JSON.stringify({ error: "Invalid order" }) };
-    }
-    
-    sqsClient.send(new SendMessageCommand({
-      QueueUrl: QUEUE_URL,
-      MessageBody: JSON.stringify(order)
-    }))
-    return { statusCode: 200, body: JSON.stringify({ messeage: 'Order Received'})} 
-  } catch (err: any) {
-    return { statusCode: 400, body: JSON.stringify({ error: err.message})}
-  }
-}
+export const handler: APIGatewayProxyHandler = async (event: any) => {
+  console.log('Received /orders request:', JSON.stringify(event));
+
+  const body = typeof event.body === 'string' ? JSON.parse(event.body) : event.body;
+
+  const queueUrl = process.env.ORDERS_QUEUE_URL;
+  if (!queueUrl) throw new Error('ORDERS_QUEUE_URL not defined');
+
+  await client.send(
+    new SendMessageCommand({
+      QueueUrl: queueUrl,
+      MessageBody: JSON.stringify(body),
+      MessageAttributes: {
+        source: { DataType: 'String', StringValue: 'orders-lambda' },
+      },
+    })
+  );
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify({ message: 'Order sent to SQS' }),
+  };
+};
