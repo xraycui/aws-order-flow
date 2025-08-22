@@ -5,9 +5,11 @@ import * as lambda from 'aws-cdk-lib/aws-lambda'
 import * as lambdaNode from 'aws-cdk-lib/aws-lambda-nodejs'
 import * as sqs from 'aws-cdk-lib/aws-sqs'
 import * as sns from 'aws-cdk-lib/aws-sns'
+import * as sfn from 'aws-cdk-lib/aws-stepfunctions'
 
 interface LambdaStackProps extends StackProps{
   ordersQueue: sqs.Queue
+  orderStateMachineArn: string
   apiOrdersQueue: sqs.Queue
   apiOrderTopic: sns.Topic
 }
@@ -21,7 +23,13 @@ export class LambdaStack extends Stack {
   constructor(scope: Construct, id: string, props: LambdaStackProps) {
     super(scope, id, props)
 
-    const { ordersQueue, apiOrdersQueue, apiOrderTopic } = props
+    const { 
+      env, 
+      ordersQueue, 
+      orderStateMachineArn, 
+      apiOrdersQueue, 
+      apiOrderTopic 
+    } = props
     
     this.healthFn = new lambdaNode.NodejsFunction(this, 'HealthFn', {
       runtime: lambda.Runtime.NODEJS_20_X,
@@ -47,6 +55,9 @@ export class LambdaStack extends Stack {
       runtime: lambda.Runtime.NODEJS_20_X,
       entry: path.join(__dirname, '../../lambdas/order-consumer/index.ts'),
       handler: 'handler',
+      environment: {
+        ORDER_WORKFLOW_ARN: orderStateMachineArn
+      }
     });
 
     // Event source mappings

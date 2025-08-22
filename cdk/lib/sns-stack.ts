@@ -10,7 +10,8 @@ interface SnsStackProps extends StackProps {
 }
 
 export class SnsStack extends Stack {
-  public readonly apiOrderTopic: sns.Topic
+  readonly apiOrderTopic: sns.Topic
+  readonly orderTopic: sns.Topic
 
   constructor(scope: Construct, id: string, props: SnsStackProps) {
     super(scope, id, props)
@@ -18,10 +19,14 @@ export class SnsStack extends Stack {
     const { apiOrderQueue } = props
 
     this.apiOrderTopic = new sns.Topic(this, 'ApiOrdersTopic', {
-      displayName: 'Order Events'
+      displayName: 'API Order Events'
     })
 
     const sub = new subsriptions.SqsSubscription(apiOrderQueue)
     this.apiOrderTopic.addSubscription(sub)
+
+    this.orderTopic = new sns.Topic(this, 'OrderTopic', {
+      displayName: 'Order Events'
+    })
   }
 }

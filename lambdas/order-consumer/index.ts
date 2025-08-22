@@ -1,3 +1,5 @@
+
+
 export const handler = async (event: any) => {
   console.log('Consumer received event:', JSON.stringify(event, null, 2));
 
@@ -5,6 +7,7 @@ export const handler = async (event: any) => {
     try {
       const body = JSON.parse(record.body || '{}');
       console.log(`Processing message from queue:`, body);
+
 
       // TODO: Add business logic here
       // e.g., store order in DB, call other services, etc.

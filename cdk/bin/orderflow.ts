@@ -6,6 +6,7 @@ import { SqsStack } from '../lib/sqs-stack';
 import { LambdaStack } from '../lib/lambda-stack'
 import { SnsStack } from '../lib/sns-stack';
 import { ApiStack } from '../lib/api-stack';
+import { StepFunctionStack } from '../lib/stepfunction-stack';
 
 const app = new cdk.App();
 
@@ -14,24 +15,33 @@ const env = {
   region: process.env.CDK_DEFAULT_REGION || 'us-east-1',
 };
 
-// Create SQS stack first
+// Queue
 const sqsStack = new SqsStack(app, 'SqsStack', { env })
 
-// Create SNS stack
+// Topic 1: SNS->SQS subscription for api-orders
+// Topic 2: 
 const snsStack = new SnsStack(app, 'SnsStack', { 
   env, 
   apiOrderQueue: sqsStack.apiOrdersQueue 
 })
 
-// Create lambdas stack
+// Workflow (with DLQ +mDLA consumer, uer PermanentFailQueue)
+const sfnStack = new StepFunctionStack(app, 'SfnStack', {
+  env, 
+  orderTopic: snsStack.orderTopic
+})
+
+// Create lambdas
+// orders -> SQS, api-orders -> SNS, consumer -> SFN
 const lambdaStack = new LambdaStack(app, 'LambdaStack', { 
   env,
   ordersQueue: sqsStack.ordersQueue,
+  orderStateMachineArn: sfnStack.stateMachine.stateMachineArn,
   apiOrdersQueue: sqsStack.apiOrdersQueue,
   apiOrderTopic: snsStack.apiOrderTopic
 })
 
-// Create API stack
+// API gateway
 const apiStack = new ApiStack(app, 'ApiStack', { 
   env, 
   healthLambda: lambdaStack.healthFn,
@@ -41,6 +51,7 @@ const apiStack = new ApiStack(app, 'ApiStack', {
 
 // Add dependencies
 snsStack.addDependency(sqsStack)
+sfnStack.addDependency(snsStack)
 lambdaStack.addDependency(sqsStack)
 lambdaStack.addDependency(snsStack)
 apiStack.addDependency(lambdaStack)
