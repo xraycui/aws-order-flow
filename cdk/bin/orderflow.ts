@@ -7,6 +7,7 @@ import { LambdaStack } from '../lib/lambda-stack'
 import { SnsStack } from '../lib/sns-stack';
 import { ApiStack } from '../lib/api-stack';
 import { StepFunctionStack } from '../lib/stepfunction-stack';
+import { DashboardStack } from '../lib/dashboard-stack';
 
 const app = new cdk.App();
 
@@ -25,7 +26,7 @@ const snsStack = new SnsStack(app, 'SnsStack', {
   apiOrderQueue: sqsStack.apiOrdersQueue 
 })
 
-// Workflow (with DLQ +mDLA consumer, uer PermanentFailQueue)
+// Workflow (with DLQ +mDLA consumer
 const sfnStack = new StepFunctionStack(app, 'SfnStack', {
   env, 
   orderTopic: snsStack.orderTopic
@@ -49,6 +50,13 @@ const apiStack = new ApiStack(app, 'ApiStack', {
   orderLambda: lambdaStack.orderFn
 })
 
+// Cloud Watch
+const dashboardStack = new DashboardStack(app, 'DashboardStack', {
+  env,
+  ordersQueue: sqsStack.ordersQueue,
+  stateMachine: sfnStack.stateMachine
+})
+
 // Add dependencies
 snsStack.addDependency(sqsStack)
 sfnStack.addDependency(snsStack)
@@ -56,4 +64,6 @@ lambdaStack.addDependency(sqsStack)
 lambdaStack.addDependency(snsStack)
 apiStack.addDependency(lambdaStack)
 apiStack.addDependency(snsStack)
+dashboardStack.addDependency(sqsStack)
+dashboardStack.addDependency(sfnStack)
 

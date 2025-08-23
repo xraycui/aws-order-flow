@@ -5,7 +5,7 @@ import * as lambda from 'aws-cdk-lib/aws-lambda'
 import * as lambdaNode from 'aws-cdk-lib/aws-lambda-nodejs'
 import * as sqs from 'aws-cdk-lib/aws-sqs'
 import * as sns from 'aws-cdk-lib/aws-sns'
-import * as sfn from 'aws-cdk-lib/aws-stepfunctions'
+import * as logs from 'aws-cdk-lib/aws-logs'
 
 interface LambdaStackProps extends StackProps{
   ordersQueue: sqs.Queue
@@ -31,16 +31,22 @@ export class LambdaStack extends Stack {
       apiOrderTopic 
     } = props
     
+    const logRetention = logs.RetentionDays.ONE_WEEK
     this.healthFn = new lambdaNode.NodejsFunction(this, 'HealthFn', {
       runtime: lambda.Runtime.NODEJS_20_X,
       entry: path.join(__dirname, '../../lambdas/health/index.ts'),
       handler: 'handler',
+      logRetention
     })
 
     this.apiOrdersFn = new lambdaNode.NodejsFunction(this, 'ApiOrdersFn', {
       runtime: lambda.Runtime.NODEJS_20_X,
       entry: path.join(__dirname, '../../lambdas/api-orders/index.ts'),
       handler: 'handler',
+      logRetention,
+      environment: {
+        API_ORDERS_TOPIC_ARN: apiOrderTopic.topicArn
+      }
     });
     apiOrderTopic.grantPublish(this.apiOrdersFn)
 
@@ -48,6 +54,10 @@ export class LambdaStack extends Stack {
       runtime: lambda.Runtime.NODEJS_20_X,
       entry: path.join(__dirname, '../../lambdas/orders/index.ts'),
       handler: 'handler',
+      logRetention,
+       environment: {
+        ORDERS_QUEUE_URL: ordersQueue.queueUrl
+      }
     });
     ordersQueue.grantSendMessages(this.orderFn)
 
@@ -55,6 +65,7 @@ export class LambdaStack extends Stack {
       runtime: lambda.Runtime.NODEJS_20_X,
       entry: path.join(__dirname, '../../lambdas/order-consumer/index.ts'),
       handler: 'handler',
+      logRetention,
       environment: {
         ORDER_WORKFLOW_ARN: orderStateMachineArn
       }
