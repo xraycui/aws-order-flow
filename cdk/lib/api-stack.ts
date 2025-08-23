@@ -1,5 +1,4 @@
-import * as path from 'path'
-import { Stack, StackProps, Duration } from "aws-cdk-lib";
+import { Stack, StackProps, CfnOutput } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import * as lambdaNode from 'aws-cdk-lib/aws-lambda-nodejs'
 import * as apigw from 'aws-cdk-lib/aws-apigateway'
@@ -24,5 +23,10 @@ export class ApiStack extends Stack {
     api.root.addResource('health').addMethod('GET', new apigw.LambdaIntegration(healthLambda))
     api.root.addResource('orders').addMethod('POST', new apigw.LambdaIntegration(orderLambda))
     api.root.addResource('api-orders').addMethod('POST', new apigw.LambdaIntegration(apiOrderLambda))
+
+    new CfnOutput(this, 'ApiOutput', {
+      value: api.restApiId,
+      exportName: 'ApiId'
+    })
   }
 }

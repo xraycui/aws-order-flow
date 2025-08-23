@@ -14,7 +14,7 @@ export class DashboardStack extends Stack {
     super(scope, id, props)
     const { ordersQueue, stateMachine } = props
     const dashboard = new cw.Dashboard(this, 'OrderFlowDashboard', {
-      dashboardName: 'OrderFlwo Dashboard'
+      dashboardName: 'OrderFlowDashboard'
     })
 
     dashboard.addWidgets(

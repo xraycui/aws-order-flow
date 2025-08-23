@@ -21,7 +21,7 @@ export class SqsStack extends Stack {
       visibilityTimeout: Duration.seconds(30),
       deadLetterQueue: { queue: this.ordersDLQ, maxReceiveCount: 3 },
     });
-    this.ordersQueue.
+    
     // Threshod alarm
     const alarmTopic = new sns.Topic(this, 'AlarmTopic')
     alarmTopic.addSubscription(new subs.EmailSubscription('support@abc.com'))

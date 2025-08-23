@@ -57,13 +57,5 @@ const dashboardStack = new DashboardStack(app, 'DashboardStack', {
   stateMachine: sfnStack.stateMachine
 })
 
-// Add dependencies
-snsStack.addDependency(sqsStack)
-sfnStack.addDependency(snsStack)
-lambdaStack.addDependency(sqsStack)
-lambdaStack.addDependency(snsStack)
-apiStack.addDependency(lambdaStack)
-apiStack.addDependency(snsStack)
-dashboardStack.addDependency(sqsStack)
-dashboardStack.addDependency(sfnStack)
+
 

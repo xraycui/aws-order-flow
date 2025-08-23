@@ -44,16 +44,15 @@ export class StepFunctionStack extends Stack {
 
     const processOrderFn = new lambdaNode.NodejsFunction(this, 'ProcessOrderFn', {
       runtime: lambda.Runtime.NODEJS_20_X,
-      entry: path.join(__dirname, '../../lambdas/pay-order/indext.ts'),
+      entry: path.join(__dirname, '../../lambdas/workflow/process-order/index.ts'),
       handler: 'handler'
     })
 
-    const confirmOrderFn = new lambdaNode.NodejsFunction(this, 'Confirm Order', {
+    const confirmOrderFn = new lambdaNode.NodejsFunction(this, 'ConfirmOrderFn', {
       runtime: lambda.Runtime.NODEJS_20_X,
-      entry: path.join(__dirname, '../../lambdas/confirm-order/index.ts'),
+      entry: path.join(__dirname, '../../lambdas/workflow/confirm-order/index.ts'),
       handler: 'handler',
       environment: {
-        AWS_REGION: env?.region!,
         ORDER_TOPIC_ARN: orderTopic.topicArn
       }
     })
