@@ -27,7 +27,7 @@ export class StepFunctionStack extends Stack {
 
     const dlqSenderFn = new lambdaNode.NodejsFunction(this, 'DlqSenderFn', {
       runtime: lambda.Runtime.NODEJS_20_X,
-      entry: path.join(__dirname, '../../lambdas/dlq-sender/index.ts'),
+      entry: path.join(__dirname, '../../lambdas/workflow/dlq-sender/index.ts'),
       handler: 'handler',
       environment: {
         DLQ_URL: this.stepFnDql.queueUrl
