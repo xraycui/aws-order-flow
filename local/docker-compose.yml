@@ -3,7 +3,7 @@ services:
   localstack:
     image: localstack/localstack:latest
     environment:
-      - SERVICES=lambda,apigateway,cloudwatch,logs,iam,sqs,sns,stepfunctions,ssm,cloudformation
+      - SERVICES=lambda,apigateway,cloudwatch,logs,iam,sqs,sns,stepfunctions,ssm,cloudformation,ec2,rds
       - EDGE_PORT=4566
       - AWS_DEFAULT_REGION=us-east-1
       - DEBUG=1

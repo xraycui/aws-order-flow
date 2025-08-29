@@ -2,6 +2,11 @@
   "name": "orderflow",
   "version": "1.0.0",
   "private": true,
+  "scripts": {
+    "cdk:bootstrap": "cd cdk && npx cdklocal bootstrap",
+    "cdk:synth": "cd cdk && npx cdklocal synth",
+    "cdk:deploy": "cd cdk && npx cdklocal deploy --all"
+  },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.130",
     "@types/aws-sdk": "^2.7.4",
@@ -15,6 +20,12 @@
   },
   "dependencies": {
     "@aws-sdk/client-sns": "^3.872.0",
-    "@aws-sdk/client-sqs": "^3.872.0"
+    "@aws-sdk/client-sqs": "^3.872.0",
+    "@aws-sdk/client-ssm": "^3.873.0",
+    "@types/pg": "^8.15.5",
+    "aws-cdk-local": "^3.0.1",
+    "client-ssm": "github:aws-sdk/client-ssm",
+    "dotenv": "^17.2.1",
+    "pg": "^8.16.3"
   }
 }

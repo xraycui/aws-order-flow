@@ -16,10 +16,15 @@ export class SqsStack extends Stack {
     super(scope, id, props);
 
     // OrdersQueue + DLQ
-    this.ordersDLQ = new sqs.Queue(this, 'OrdersDLQ', { retentionPeriod: Duration.days(14) });
-    this.ordersQueue = new sqs.Queue(this, 'OrdersQueue', {
+    this.ordersDLQ = new sqs.Queue(this, 'OrdersDLQ', { 
+      retentionPeriod: Duration.days(14) 
+    });
+
+    this.ordersQueue = new sqs.Queue(this, 'OrdersQueue.fifo', {
+      queueName: 'OrderQueue.fifo',
+      fifo: true,
       visibilityTimeout: Duration.seconds(30),
-      deadLetterQueue: { queue: this.ordersDLQ, maxReceiveCount: 3 },
+      deadLetterQueue: { queue: this.ordersDLQ, maxReceiveCount: 3 }
     });
     
     // Threshod alarm
@@ -37,6 +42,8 @@ export class SqsStack extends Stack {
     // ApiOrdersQueue + DLQ
     this.apiOrdersDLQ = new sqs.Queue(this, 'ApiOrdersDLQ', { retentionPeriod: Duration.days(14) });
     this.apiOrdersQueue = new sqs.Queue(this, 'ApiOrdersQueue', {
+      queueName: 'BatchOrderQueue',
+      fifo: false,
       visibilityTimeout: Duration.seconds(30),
       deadLetterQueue: { queue: this.apiOrdersDLQ, maxReceiveCount: 3 },
     });

@@ -15,18 +15,28 @@ This project demonstrates how to build a serverless architecture with:
 
 ## 🏗 Project Structure
 
-aws-order-flow/
-├── cdk/ # CDK app (infrastructure as code)
-│ ├── bin/ # CDK app entry point
-│ ├── lib/ # CDK stacks (API, SQS, Step Functions, etc.)
-│ └── tsconfig.json
-├── lambdas/ # Lambda functions (TypeScript)
-│ ├── health/ # /health check Lambda
-│ └── orders/ # /orders API Lambda
+orderflow/
+├── bin/
+│   └── orderflow.ts
+├── lib/
+│   ├── vpc-stack.ts
+│   ├── db-stack.ts
+│   ├── lambda-stack.ts
+│   ├── stepfunction-stack.ts
+│   ├── api-stack.ts
+│   ├── observability-stack.ts
+│   ├── auth-stack.ts
+│   ├── pipeline-stack.ts
+├── lambda/
+│   ├── validateOrder.ts
+│   ├── processPayment.ts
+│   ├── confirmOrder.ts
+│   ├── sqlSender.ts
+│   └── dlqHandler.ts
+├── test/
+│   └── lambda.test.ts
 ├── package.json
 ├── tsconfig.json
-├── cdk.json # CDK app configuration
-├── .gitignore
 └── README.md
 
 
